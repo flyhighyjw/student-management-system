@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 상세 페이지</title>
+    <style>
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* 가로 스크롤을 숨깁니다 */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+            width: 100%; /* 네비게이션 바가 페이지 너비에 맞추어지도록 */
+            position: fixed; /* 상단에 고정 */
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+        }
+        .navbar .logo a img {
+            height: 40px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .navbar .logo a {
+            padding: 0;
+        }
+        .navbar a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .navbar .logo a:hover {
+            background-color: transparent;
+            color: inherit;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            min-height: 600px; /* 컨테이너의 최소 높이 설정 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table th, .info-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+        .content {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .attachments {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .attachments a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .attachments a:hover {
+            text-decoration: underline;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+        .buttons a,
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .buttons a {
+            background-color: #333;
+        }
+        .buttons a:hover {
+            background-color: #555;
+        }
+        .buttons .edit,
+        .buttons .delete {
+            background-color: #28a745;
+        }
+        .buttons .delete {
+            background-color: #dc3545;
+        }
+        .buttons .edit:hover {
+            background-color: #218838;
+        }
+        .buttons .delete:hover {
+            background-color: #c82333;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a> <!-- 로고 이미지 경로 -->
+        </div>
+        <div class="menu">
+            <a href="index.html">홈</a>
+            <div class="dropdown">
+                <a href="#course">과정안내</a>
+                <div class="dropdown-content">
+                    <a href="#intro">소개</a>
+                    <a href="#job-track">직무트랙</a>
+                    <a href="#company-track">기업트랙</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#community">커뮤니티</a>
+                <div class="dropdown-content">
+                    <a href="notice_list.html">공지사항</a>
+                    <a href="#qna">QNA</a>
+                </div>
+            </div>
+        </div>
+        <div class="auth">
+            <a href="login.html">로그인</a>
+            <a href="register.html">회원가입</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <table class="info-table">
+            <tr>
+                <th>제목</th>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <th>작성자</th>
+                <td>admin</td>
+                <th>작성일</th>
+                <td>2024-05-14</td>
+            </tr>
+            <tr>
+                <th>첨부파일</th>
+                <td colspan="3"><a href="/path/to/file">파일명.pdf</a></td>
+            </tr>
+        </table>
+        <div class="content">
+            공지사항 내용
+        </div>
+        <div class="buttons">
+            <a href="notice_list.html">목록으로</a>
+            <div id="admin-buttons">
+                <button class="edit">수정</button>
+                <button class="delete">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2024 Your Company Name. All rights reserved.
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminButtons = document.getElementById('admin-buttons');
+            // const isAdmin = <% isAdmin ? 'true' : 'false' %>; // 서버에서 전달된 isAdmin 변수
+
+            // 관리자만 수정/삭제 버튼 보이게 설정
+            if (isAdmin === 'true') {
+                adminButtons.style.display = 'flex';
+            } else {
+                adminButtons.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

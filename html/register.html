@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 페이지</title>
+    <style>
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* 가로 스크롤을 숨깁니다 */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 중앙 정렬 */
+            align-items: center; /* 중앙 정렬 */
+            background-color: #f9f9f9;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+            width: 100%; /* 네비게이션 바가 페이지 너비에 맞추어지도록 */
+            position: fixed; /* 상단에 고정 */
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+        }
+        .navbar .logo a img {
+            height: 40px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .navbar .logo a {
+            padding: 0;
+        }
+        .navbar a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .navbar .logo a:hover {
+            background-color: transparent;
+            color: inherit;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .register-container {
+            width: 100%;
+            max-width: 600px; /* 컨테이너의 최대 너비를 넓혔습니다 */
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: left;
+            margin: auto;
+            margin-top: 100px; /* 네비게이션 바와 겹치지 않도록 여백 추가 */
+            margin-bottom: 20px; /* 푸터와 겹치지 않도록 여백 추가 */
+        }
+        .register-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center; /* 제목을 중앙 정렬 */
+        }
+        .register-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .register-container .input-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 25px; /* 필드 사이의 거리 추가 */
+        }
+        .register-container input[type="text"],
+        .register-container input[type="password"],
+        .register-container input[type="tel"],
+        .register-container input[type="email"],
+        .register-container input[type="date"],
+        .register-container select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .register-container .input-container button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 5px 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 80%; /* 버튼 글씨 크기 조정 */
+            box-sizing: border-box;
+            height: 70%; /* 버튼 높이 조정 */
+        }
+        .register-container .input-container button:hover {
+            background-color: #555;
+        }
+        .register-container .error {
+            color: red;
+            font-size: 0.8em; /* 오류 메시지 글씨 크기 조정 */
+            margin-top: -10px; /* 에러 메시지와 입력 필드 사이의 간격을 줄입니다 */
+            margin-bottom: 10px; /* 에러 메시지 아래에 간격을 추가합니다 */
+            display: block;
+        }
+        .submit-btn {
+            width: 100%; /* 버튼의 너비를 줄입니다 */
+            padding: 10px;
+            margin-top: 20px; /* 버튼과 입력 필드 사이의 간격을 줍니다 */
+            font-size: 16px; /* 버튼 글씨 크기 */
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .submit-btn:hover {
+            background-color: #555;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a> <!-- 로고 이미지 경로 -->
+        </div>
+        <div class="menu">
+            <a href="index.html">홈</a>
+            <div class="dropdown">
+                <a href="#course">과정안내</a>
+                <div class="dropdown-content">
+                    <a href="#intro">소개</a>
+                    <a href="#job-track">직무트랙</a>
+                    <a href="#company-track">기업트랙</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#community">커뮤니티</a>
+                <div class="dropdown-content">
+                    <a href="#notice">공지사항</a>
+                    <a href="#qna">QNA</a>
+                </div>
+            </div>
+        </div>
+        <div class="auth">
+            <a href="login.html">로그인</a>
+            <a href="register.html">회원가입</a>
+        </div>
+    </div>
+
+    <div class="register-container">
+        <h2>회원가입</h2>
+        <form id="registerForm" action="/register" method="POST">
+            <div class="form-group">
+                <label for="username">아이디</label>
+                <div class="input-container">
+                    <input type="text" id="username" name="username" required>
+                    <button type="button" onclick="checkUsername()">중복확인</button>
+                </div>
+                <span class="error" id="usernameError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <div class="input-container">
+                    <input type="password" id="password" name="password" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">비밀번호 확인</label>
+                <div class="input-container">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <span class="error" id="passwordError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">핸드폰번호</label>
+                <div class="input-container">
+                    <input type="tel" id="phone" name="phone" required placeholder="000-0000-0000">
+                    <button type="button" onclick="checkPhone()">중복확인</button>
+                </div>
+                <span class="error" id="phoneError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">이메일 주소</label>
+                <div class="input-container">
+                    <input type="email" id="email" name="email" required placeholder="id@email.com">
+                    <button type="button" onclick="checkEmail()">중복확인</button>
+                </div>
+                <span class="error" id="emailError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="birthdate">생년월일</label>
+                <div class="input-container">
+                    <input type="date" id="birthdate" name="birthdate" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="track">트랙 선택</label>
+                <div class="input-container">
+                    <select id="track" name="track" required>
+                        <option value="">트랙 선택</option>
+                        <option value="job">직무트랙</option>
+                        <option value="company">기업트랙</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">회원가입</button>
+        </form>
+    </div>
+
+    <div class="footer">
+        © 2024 Your Company Name. All rights reserved.
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const passwordError = document.getElementById('passwordError');
+
+            // 비밀번호 확인 필드의 입력 이벤트를 감지합니다.
+            confirmPassword.addEventListener('input', function() {
+                if (password.value !== confirmPassword.value) {
+                    passwordError.textContent = '비밀번호가 일치하지 않습니다.';
+                } else {
+                    passwordError.textContent = '';
+                }
+            });
+
+            document.getElementById('registerForm').addEventListener('submit', function(event) {
+                // 기본 폼 제출 동작을 방지합니다.
+                event.preventDefault();
+
+                // 오류 메시지 요소들을 가져옵니다.
+                const usernameError = document.getElementById('usernameError');
+                const phoneError = document.getElementById('phoneError');
+                const emailError = document.getElementById('emailError');
+
+                // 오류 메시지를 초기화합니다.
+                usernameError.textContent = '';
+                phoneError.textContent = '';
+                emailError.textContent = '';
+
+                // 입력 필드 값들을 가져옵니다.
+                const username = document.getElementById('username').value;
+                const phone = document.getElementById('phone').value;
+                const email = document.getElementById('email').value;
+
+                // 유효성 검사를 위한 변수입니다.
+                let isValid = true;
+
+                // 아이디 중복 검사를 위한 비동기 요청을 보냅니다.
+                fetch(`/check-username?username=${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.available) {
+                            usernameError.textContent = '사용할 수 없는 아이디입니다.';
+                            isValid = false;
+                        }
+
+                        // 핸드폰 번호 중복 검사를 위한 비동기 요청을 보냅니다.
+                        return fetch(`/check-phone?phone=${phone}`);
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.available) {
+                            phoneError.textContent = '사용할 수 없는 핸드폰 번호입니다.';
+                            isValid = false;
+                        }
+
+                        // 이메일 중복 검사를 위한 비동기 요청을 보냅니다.
+                        return fetch(`/check-email?email=${email}`);
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.available) {
+                            emailError.textContent = '사용할 수 없는 이메일 주소입니다.';
+                            isValid = false;
+                        }
+
+                        // 모든 유효성 검사를 통과하면 폼을 제출합니다.
+                        if (isValid) {
+                            document.getElementById('registerForm').submit();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+        });
+
+        function checkUsername() {
+            const username = document.getElementById('username').value;
+            const usernameError = document.getElementById('usernameError');
+            usernameError.textContent = ''; // 기존 오류 메시지 초기화
+
+            fetch(`/check-username?username=${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.available) {
+                        usernameError.textContent = '사용할 수 없는 아이디입니다.';
+                    } else {
+                        usernameError.textContent = '사용할 수 있는 아이디입니다.';
+                        usernameError.style.color = 'green';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function checkPhone() {
+            const phone = document.getElementById('phone').value;
+            const phoneError = document.getElementById('phoneError');
+            phoneError.textContent = ''; // 기존 오류 메시지 초기화
+
+            fetch(`/check-phone?phone=${phone}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.available) {
+                        phoneError.textContent = '사용할 수 없는 핸드폰 번호입니다.';
+                    } else {
+                        phoneError.textContent = '사용할 수 있는 핸드폰 번호입니다.';
+                        phoneError.style.color = 'green';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function checkEmail() {
+            const email = document.getElementById('email').value;
+            const emailError = document.getElementById('emailError');
+            emailError.textContent = ''; // 기존 오류 메시지 초기화
+
+            fetch(`/check-email?email=${email}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.available) {
+                        emailError.textContent = '사용할 수 없는 이메일 주소입니다.';
+                    } else {
+                        emailError.textContent = '사용할 수 있는 이메일 주소입니다.';
+                        emailError.style.color = 'green';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A 상세 페이지</title>
+    <style>
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* 가로 스크롤을 숨깁니다 */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+            width: 100%; /* 네비게이션 바가 페이지 너비에 맞추어지도록 */
+            position: fixed; /* 상단에 고정 */
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+        }
+        .navbar .logo a img {
+            height: 40px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .navbar .logo a {
+            padding: 0;
+        }
+        .navbar a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .navbar .logo a:hover {
+            background-color: transparent;
+            color: inherit;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            margin-top: 70px; /* 네비게이션 바와 겹치지 않도록 여백 추가 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            min-height: calc(100vh - 100px); /* 화면 높이 - 상하 여백 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table th, .info-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+        .content {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .comments {
+            margin-top: 20px; /* 위쪽 마진을 줄임 */
+            max-height: 300px; /* 댓글 리스트의 최대 높이 설정 */
+            overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+        }
+        .comment-list {
+            list-style: none;
+            padding: 0;
+        }
+        .comment-list li {
+            border-top: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-list li:first-child {
+            border-top: none;
+        }
+        .comment-list .comment-author {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .comment-list .comment-date {
+            color: #777;
+            font-size: 12px;
+        }
+        .comment-list .comment-actions {
+            font-size: 12px;
+        }
+        .comment-list .comment-actions a {
+            margin-left: 10px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .comment-list .comment-actions a:hover {
+            text-decoration: underline;
+        }
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .comment-form textarea {
+            resize: vertical;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .comment-form button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        .comment-form button:hover {
+            background-color: #555;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .buttons a,
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .buttons a {
+            background-color: #333;
+        }
+        .buttons a:hover {
+            background-color: #555;
+        }
+        .buttons .edit,
+        .buttons .delete {
+            background-color: #28a745;
+        }
+        .buttons .delete {
+            background-color: #dc3545;
+        }
+        .buttons .edit:hover {
+            background-color: #218838;
+        }
+        .buttons .delete:hover {
+            background-color: #c82333;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a> <!-- 로고 이미지 경로 -->
+        </div>
+        <div class="menu">
+            <a href="index.html">홈</a>
+            <div class="dropdown">
+                <a href="#course">과정안내</a>
+                <div class="dropdown-content">
+                    <a href="#intro">소개</a>
+                    <a href="#job-track">직무트랙</a>
+                    <a href="#company-track">기업트랙</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#community">커뮤니티</a>
+                <div class="dropdown-content">
+                    <a href="notice_list.html">공지사항</a>
+                    <a href="qna_list.html">Q&A</a>
+                </div>
+            </div>
+        </div>
+        <div class="auth">
+            <a href="login.html">로그인</a>
+            <a href="register.html">회원가입</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <table class="info-table">
+            <tr>
+                <th>제목</th>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <th>작성자</th>
+                <td>user1</td>
+                <th>작성일</th>
+                <td>2024-05-14</td>
+            </tr>
+        </table>
+        <div class="content">
+            질문 내용
+        </div>
+        <div class="buttons">
+            <a href="qna_list.html">목록으로</a>
+            <div id="user-buttons">
+                <button class="edit">수정</button>
+                <button class="delete">삭제</button>
+            </div>
+        </div>
+
+        <div class="comments">
+            <h3>댓글</h3>
+            <ul class="comment-list" id="comment-list">
+                <!-- 댓글 항목들 -->
+                <li>
+                    <div>
+                        <span class="comment-author">user2</span>
+                        <span class="comment-date">2024-05-15</span>
+                        <p>댓글 내용 1</p>
+                    </div>
+                    <div class="comment-actions" id="comment-actions-1">
+                        <a href="#">수정</a> | <a href="#">삭제</a>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span class="comment-author">user3</span>
+                        <span class="comment-date">2024-05-16</span>
+                        <p>댓글 내용 2</p>
+                    </div>
+                    <div class="comment-actions" id="comment-actions-2">
+                        <a href="#">수정</a> | <a href="#">삭제</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="comment-form">
+            <textarea placeholder="댓글을 작성하세요..."></textarea>
+            <button>댓글 작성</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2024 Your Company Name. All rights reserved.
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userButtons = document.getElementById('user-buttons');
+            // const isUser = <% isUser ? 'true' : 'false' %>; // 서버에서 전달된 isUser 변수
+
+            // 사용자가 작성자인 경우에만 수정/삭제 버튼 보이게 설정
+            if (isUser === 'true') {
+                userButtons.style.display = 'flex';
+            } else {
+                userButtons.style.display = 'none';
+            }
+
+            // 댓글 작성자만 댓글 수정/삭제 버튼 보이게 설정
+            const commentActions1 = document.getElementById('comment-actions-1');
+            const commentActions2 = document.getElementById('comment-actions-2');
+            // const isCommentAuthor1 = <% isCommentAuthor1 ? 'true' : 'false' %>;
+            // const isCommentAuthor2 = <% isCommentAuthor2 ? 'true' : 'false' %>;
+
+            if (isCommentAuthor1 === 'true') {
+                commentActions1.style.display = 'flex';
+            } else {
+                commentActions1.style.display = 'none';
+            }
+
+            if (isCommentAuthor2 === 'true') {
+                commentActions2.style.display = 'flex';
+            } else {
+                commentActions2.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
