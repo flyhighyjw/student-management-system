@@ -165,9 +165,9 @@
                 </div>
             </div>
         </div>
-        <div class="auth">
-            <a href="login.html">로그인</a>
-            <a href="register.html">회원가입</a>
+        <div class="side">
+            <a href="#mypage">마이페이지</a>
+            <a href="javascript:void(0);" onclick="logout()">로그아웃</a>
         </div>
     </div>
 
@@ -226,6 +226,20 @@
                     console.error('Error:', error);
                 });
         });
+
+        function logout() {
+            fetch('/api/logout.php')
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    // 쿠키 삭제
+                    document.cookie = 'userid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    window.location.href = '../login.html';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
     </script>
 </body>
 </html>

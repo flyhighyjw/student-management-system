@@ -159,14 +159,14 @@
             </div>
         </div>
         <div class="auth">
-            <a href="login.html">로그인</a>
+            <a href="#login">로그인</a>
             <a href="register.html">회원가입</a>
         </div>
     </div>
 
     <div class="login-container">
         <h2>로그인</h2>
-        <form action="/login" method="POST">
+        <form action="api/login.php" method="POST">
             <input type="text" name="username" placeholder="아이디" required>
             <input type="password" name="password" placeholder="비밀번호" required>
             <button type="submit">로그인</button>
