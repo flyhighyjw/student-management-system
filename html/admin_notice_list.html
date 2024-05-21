@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지 리스트 - 관리자 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar h2 {
+            color: #ecf0f1;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .button-danger {
+            background-color: #e74c3c;
+        }
+        .button-danger:hover {
+            background-color: #c0392b;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>공지 리스트 - 관리자 페이지</h1>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h2>메뉴</h2>
+                <ul>
+                    <li><a href="admin-dashboard.html">대시보드</a></li>
+                    <li><a href="admin_notice_list.html">공지 관리</a></li>
+                    <li><a href="qna-list.html">QNA 관리</a></li>
+                    <li><a href="member-list.html">회원 관리</a></li>
+                    <li><a href="track-list.html">트랙 관리</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="card">
+                <h3>공지 리스트</h3>
+                <form id="noticeForm">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" onclick="toggleAll(this)"></th>
+                                <th>제목</th>
+                                <th>작성자</th>
+                                <th>작성일</th>
+                            </tr>
+                        </thead>
+                        <tbody id="noticeList">
+                            <!-- 공지사항 목록을 동적으로 추가할 곳 -->
+                        </tbody>
+                    </table>
+                    <div class="form-actions">
+                        <a href="write_notice.html" class="button">공지 등록</a>
+                        <button type="button" class="button button-danger" onclick="deleteNotices()">삭제</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('api/get_notices.php')  // 서버에서 공지 리스트를 가져오는 API 엔드포인트
+                .then(response => response.json())
+                .then(data => {
+                    const noticeList = document.getElementById('noticeList');
+                    noticeList.innerHTML = '';  // 기존 목록 초기화
+                    data.forEach(notice => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><input type="checkbox" name="notice" value="${notice.notice_no}"></td>
+                            <td><a href="view_notice.html?notice_no=${notice.notice_no}">${notice.notice_title}</a></td>
+                            <td>${notice.author}</td>
+                            <td>${notice.notice_date}</td>
+                        `;
+                        noticeList.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching notices:', error);
+                });
+        });
+
+        function toggleAll(source) {
+            const checkboxes = document.getElementsByName('notice');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = source.checked;
+            });
+        }
+
+        function deleteNotices() {
+            const form = document.getElementById('noticeForm');
+            const selectedNotices = Array.from(form.querySelectorAll('input[name="notice"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedNotices.length > 0) {
+                if (confirm('선택된 공지를 삭제하시겠습니까?')) {
+                    fetch('api/delete_notices.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ids: selectedNotices })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('삭제되었습니다.');
+                            location.reload();  // 페이지를 새로고침하여 업데이트된 리스트를 표시합니다.
+                        } else {
+                            alert('삭제에 실패했습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting notices:', error);
+                    });
+                }
+            } else {
+                alert('삭제할 공지를 선택하세요.');
+            }
+        }
+    </script>
+</body>
+</html>
