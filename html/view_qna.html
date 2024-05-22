@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QNA 보기 - 관리자 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar h2 {
+            color: #ecf0f1;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table th, .info-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #f4f4f4;
+            width: 20%;
+        }
+        .info-table td {
+            background-color: #fff;
+        }
+        .content {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+        .buttons button:hover {
+            background-color: #2980b9;
+        }
+        .buttons .button-danger {
+            background-color: #e74c3c;
+        }
+        .buttons .button-danger:hover {
+            background-color: #c0392b;
+        }
+        .comments {
+            margin-bottom: 20px;
+        }
+        .comments h3 {
+            margin-top: 0;
+        }
+        .comment-list {
+            list-style: none;
+            padding: 0;
+        }
+        .comment-list li {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .comment-list li div {
+            display: flex;
+            justify-content: space-between;
+        }
+        .comment-list .comment-author {
+            font-weight: bold;
+        }
+        .comment-list .comment-date {
+            color: #aaa;
+        }
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .comment-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .comment-form button {
+            align-self: flex-end;
+            padding: 10px 20px;
+            background-color: #333; /* 스타일링된 버튼 색상 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .comment-form button:hover {
+            background-color: #555;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>QNA 보기 - 관리자 페이지</h1>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h2>메뉴</h2>
+                <ul>
+                    <li><a href="admin-dashboard.html">대시보드</a></li>
+                    <li><a href="admin_notice_list.html">공지 관리</a></li>
+                    <li><a href="qna-list.html">QNA 관리</a></li>
+                    <li><a href="member-list.html">회원 관리</a></li>
+                    <li><a href="track-list.html">트랙 관리</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="card">
+                <table class="info-table">
+                    <tr>
+                        <th>제목</th>
+                        <td colspan="3" id="qna-title"></td>
+                    </tr>
+                    <tr>
+                        <th>작성자</th>
+                        <td id="qna-author"></td>
+                        <th>작성일</th>
+                        <td id="qna-date"></td>
+                    </tr>
+                </table>
+                <div class="content" id="qna-content">
+                    <!-- 질문 내용 -->
+                </div>
+                <div class="buttons">
+                    <div id="user-buttons">
+                        <button class="edit" onclick="editQna()">수정</button>
+                        <button class="delete button-danger" onclick="deleteQna()">삭제</button>
+                    </div>
+                </div>
+
+                <div class="comments">
+                    <h3>댓글</h3>
+                    <ul class="comment-list" id="comment-list">
+                        <!-- 댓글 항목들 -->
+                    </ul>
+                </div>
+
+                <div class="comment-form">
+                    <textarea id="new-comment" placeholder="댓글을 작성하세요..."></textarea>
+                    <button onclick="addComment()">댓글 작성</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qnaNo = new URLSearchParams(window.location.search).get('qna_no');
+            
+            // Fetch QNA details
+            fetch(`api/get_qna.php?qna_no=${qnaNo}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('qna-title').textContent = data.qna_title;
+                    document.getElementById('qna-author').textContent = data.user_name;
+                    document.getElementById('qna-date').textContent = data.qna_date;
+                    document.getElementById('qna-content').textContent = data.qna_content;
+                    const userButtons = document.getElementById('user-buttons');
+                    
+                    // Show edit/delete buttons if user is the author
+                    if (data.is_user_author) {
+                        userButtons.style.display = 'flex';
+                    } else {
+                        userButtons.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching QNA details:', error);
+                });
+
+            // Fetch comments
+            fetch(`api/get_comments.php?qna_no=${qnaNo}`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentList = document.getElementById('comment-list');
+                    commentList.innerHTML = ''; // Clear existing comments
+                    comments.forEach(comment => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <div>
+                                <span>
+                                    <span class="comment-author">${comment.user_name}</span>
+                                    <span class="comment-date">${comment.comment_date}</span>
+                                </span>
+                                <div class="comment-actions" id="comment-actions-${comment.comment_no}">
+                                    <a href="#" onclick="editComment(${comment.comment_no})">수정</a>
+                                    <a href="#" onclick="deleteComment(${comment.comment_no})">삭제</a>
+                                </div>
+                            </div>
+                            <p>${comment.comment_content}</p>
+                        `;
+                        commentList.appendChild(li);
+                        
+                        // Show comment actions if user is the author
+                        if (comment.is_comment_author) {
+                            document.getElementById(`comment-actions-${comment.comment_no}`).style.display = 'flex';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching comments:', error);
+                });
+        });
+
+        function editQna() {
+            const qnaNo = new URLSearchParams(window.location.search).get('qna_no');
+            window.location.href = `edit_qna.html?qna_no=${qnaNo}`;
+        }
+
+        function deleteQna() {
+            const qnaNo = new URLSearchParams(window.location.search).get('qna_no');
+            if (confirm('정말로 이 QNA를 삭제하시겠습니까?')) {
+                fetch(`api/delete_qna.php?qna_no=${qnaNo}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('삭제되었습니다.');
+                        window.location.href = 'admin_qna_list.html';
+                    } else {
+                        alert('삭제에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting QNA:', error);
+                });
+            }
+        }
+
+        function addComment() {
+            const qnaNo = new URLSearchParams(window.location.search).get('qna_no');
+            const commentContent = document.getElementById('new-comment').value;
+            fetch(`api/add_comment.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ qna_no: qnaNo, comment_content: commentContent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('댓글이 작성되었습니다.');
+                    window.location.reload();
+                } else {
+                    alert('댓글 작성에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding comment:', error);
+            });
+        }
+
+        function editComment(commentNo) {
+            const newContent = prompt('새로운 댓글 내용을 입력하세요:');
+            if (newContent) {
+                fetch(`api/edit_comment.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ comment_no: commentNo, comment_content: newContent })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('댓글이 수정되었습니다.');
+                        window.location.reload();
+                    } else {
+                        alert('댓글 수정에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error editing comment:', error);
+                });
+            }
+        }
+
+        function deleteComment(commentNo) {
+            if (confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                fetch(`api/delete_comment.php?comment_no=${commentNo}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('댓글이 삭제되었습니다.');
+                        window.location.reload();
+                    } else {
+                        alert('댓글 삭제에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting comment:', error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

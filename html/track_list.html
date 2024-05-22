@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>트랙 목록 - 관리자 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar h2 {
+            color: #ecf0f1;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .table th {
+            background-color: #f4f4f4;
+        }
+        .table td {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>트랙 목록 - 관리자 페이지</h1>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h2>메뉴</h2>
+                <ul>
+                    <li><a href="admin-dashboard.html">대시보드</a></li>
+                    <li><a href="admin_notice_list.html">공지 관리</a></li>
+                    <li><a href="qna-list.html">QNA 관리</a></li>
+                    <li><a href="admin_user_list.html">회원 관리</a></li>
+                    <li><a href="track-list.html">트랙 관리</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="card">
+                <h3>트랙 목록</h3>
+                <table class="table" id="track-table">
+                    <thead>
+                        <tr>
+                            <th>트랙 번호</th>
+                            <th>트랙 이름</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 트랙 목록 항목들 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('api/get_tracks.php')
+                .then(response => response.json())
+                .then(tracks => {
+                    const trackTable = document.getElementById('track-table').getElementsByTagName('tbody')[0];
+                    trackTable.innerHTML = ''; // 기존 트랙 목록 비우기
+                    tracks.forEach(track => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${track.track_no}</td>
+                            <td>${track.track_name}</td>
+                        `;
+                        trackTable.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching track list:', error);
+                });
+        });
+    </script>
+</body>
+</html>

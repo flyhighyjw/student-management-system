@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 수정 - 관리자 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar h2 {
+            color: #ecf0f1;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+        .buttons button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>회원 수정 - 관리자 페이지</h1>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h2>메뉴</h2>
+                <ul>
+                    <li><a href="admin-dashboard.html">대시보드</a></li>
+                    <li><a href="admin_notice_list.html">공지 관리</a></li>
+                    <li><a href="qna-list.html">QNA 관리</a></li>
+                    <li><a href="user-list.html">회원 관리</a></li>
+                    <li><a href="track-list.html">트랙 관리</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="card">
+                <h3>회원 수정</h3>
+                <form id="edit-user-form">
+                    <div class="form-group">
+                        <label for="user_name">이름</label>
+                        <input type="text" id="user_name" name="user_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user_id">아이디</label>
+                        <input type="text" id="user_id" name="user_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user_phone">전화번호</label>
+                        <input type="text" id="user_phone" name="user_phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="is_admin">관리자 여부</label>
+                        <select id="is_admin" name="is_admin" required>
+                            <option value="0">아니요</option>
+                            <option value="1">예</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="track_no">트랙 번호</label>
+                        <input type="number" id="track_no" name="track_no" required>
+                    </div>
+                    <div class="buttons">
+                        <button type="submit">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userNo = new URLSearchParams(window.location.search).get('user_no');
+
+            fetch(`api/get_user.php?user_no=${userNo}`)
+                .then(response => response.json())
+                .then(user => {
+                    document.getElementById('user_name').value = user.user_name;
+                    document.getElementById('user_id').value = user.user_id;
+                    document.getElementById('user_phone').value = user.user_phone;
+                    document.getElementById('is_admin').value = user.is_admin;
+                    document.getElementById('track_no').value = user.track_no;
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                });
+
+            document.getElementById('edit-user-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const userName = document.getElementById('user_name').value;
+                const userId = document.getElementById('user_id').value;
+                const userPhone = document.getElementById('user_phone').value;
+                const isAdmin = document.getElementById('is_admin').value;
+                const trackNo = document.getElementById('track_no').value;
+
+                fetch(`api/edit_user.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_no: userNo,
+                        user_name: userName,
+                        user_id: userId,
+                        user_phone: userPhone,
+                        is_admin: isAdmin,
+                        track_no: trackNo
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('회원 정보가 수정되었습니다.');
+                        window.location.href = 'admin_user_list.html';
+                    } else {
+                        alert('회원 정보 수정에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error editing user:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
