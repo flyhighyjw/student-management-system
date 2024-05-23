@@ -11,7 +11,7 @@ $row = mysqli_fetch_array($result);
 
 if ($result->num_rows > 0) {
     setcookie('userid', $id, time() + 86400, "/");
-    header("location: ../user_index.html");
+    header("location: ../index.html");
 } else {
     echo "<script>
             alert('아이디 또는 비밀번호가 잘못되었습니다.');

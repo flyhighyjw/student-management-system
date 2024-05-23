@@ -1,4 +1,3 @@
-<!-- user-navbar.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -68,6 +67,12 @@
             display: block;
         }
     </style>
+    <script>
+        function logout() {
+            // 로그아웃 처리 후 페이지 리디렉션
+            window.location.href = 'api/logout.php';
+        }
+    </script>
 </head>
 <body>
     <div class="navbar">
