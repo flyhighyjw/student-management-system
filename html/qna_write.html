@@ -109,7 +109,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
-            box-sizing: border-box; /* padding과 border를 포함한 width 계산 */
+            box-sizing: border-box;
         }
         .form-group textarea {
             resize: vertical;
@@ -151,33 +151,7 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a>
-        </div>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <div class="dropdown">
-                <a href="#course">과정안내</a>
-                <div class="dropdown-content">
-                    <a href="#intro">소개</a>
-                    <a href="#job-track">직무트랙</a>
-                    <a href="#company-track">기업트랙</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#community">커뮤니티</a>
-                <div class="dropdown-content">
-                    <a href="notice_list.html">공지사항</a>
-                    <a href="qna_list.html">Q&A</a>
-                </div>
-            </div>
-        </div>
-        <div class="auth">
-            <a href="login.html">로그인</a>
-            <a href="register.html">회원가입</a>
-        </div>
-    </div>
+    <div class="navbar" id="navbar"></div>
 
     <div class="container">
         <form id="writeForm">
@@ -201,9 +175,61 @@
     </div>
 
     <script>
-        document.getElementById('writeForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            // 폼 데이터를 서버로 전송하는 로직 추가
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        function logout() {
+            window.location.href = 'api/logout.php';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userId = getCookie('userid');
+            const isLoggedIn = userId !== undefined;
+            const navbarFile = isLoggedIn ? 'user-navbar.html' : 'navbar.html';
+            fetch(navbarFile)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading navbar:', error);
+                });
+
+            document.getElementById('writeForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const title = document.getElementById('title').value;
+                const content = document.getElementById('content').value;
+
+                if (!isLoggedIn) {
+                    alert('로그인 후 이용해주시기 바랍니다.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                fetch('api/add_qna.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title: title, content: content, user_id: userId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('질문이 등록되었습니다.');
+                        window.location.href = 'qna_list.html';
+                    } else {
+                        alert('질문 등록에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding QNA:', error);
+                });
+            });
         });
     </script>
 </body>

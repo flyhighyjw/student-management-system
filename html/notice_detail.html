@@ -129,36 +129,20 @@
         }
         .buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             margin-top: auto;
         }
-        .buttons a,
-        .buttons button {
+        .buttons a {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             text-decoration: none;
             color: white;
-        }
-        .buttons a {
             background-color: #333;
         }
         .buttons a:hover {
             background-color: #555;
-        }
-        .buttons .edit,
-        .buttons .delete {
-            background-color: #28a745;
-        }
-        .buttons .delete {
-            background-color: #dc3545;
-        }
-        .buttons .edit:hover {
-            background-color: #218838;
-        }
-        .buttons .delete:hover {
-            background-color: #c82333;
         }
         .footer {
             background-color: #333;
@@ -172,60 +156,30 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a> <!-- 로고 이미지 경로 -->
-        </div>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <div class="dropdown">
-                <a href="#course">과정안내</a>
-                <div class="dropdown-content">
-                    <a href="#intro">소개</a>
-                    <a href="#job-track">직무트랙</a>
-                    <a href="#company-track">기업트랙</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#community">커뮤니티</a>
-                <div class="dropdown-content">
-                    <a href="notice_list.html">공지사항</a>
-                    <a href="#qna">QNA</a>
-                </div>
-            </div>
-        </div>
-        <div class="auth">
-            <a href="login.html">로그인</a>
-            <a href="register.html">회원가입</a>
-        </div>
-    </div>
+    <div id="navbar"></div>
 
     <div class="container">
         <table class="info-table">
             <tr>
                 <th>제목</th>
-                <td colspan="3"></td>
+                <td colspan="3" id="noticeTitle"></td>
             </tr>
             <tr>
                 <th>작성자</th>
-                <td>admin</td>
+                <td id="noticeAuthor"></td>
                 <th>작성일</th>
-                <td>2024-05-14</td>
+                <td id="noticeDate"></td>
             </tr>
-            <tr>
+            <tr id="fileRow">
                 <th>첨부파일</th>
-                <td colspan="3"><a href="/path/to/file">파일명.pdf</a></td>
+                <td colspan="3" id="fileLink"></td>
             </tr>
         </table>
-        <div class="content">
+        <div class="content" id="noticeContent">
             공지사항 내용
         </div>
         <div class="buttons">
             <a href="notice_list.html">목록으로</a>
-            <div id="admin-buttons">
-                <button class="edit">수정</button>
-                <button class="delete">삭제</button>
-            </div>
         </div>
     </div>
 
@@ -235,15 +189,55 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const adminButtons = document.getElementById('admin-buttons');
-            // const isAdmin = <% isAdmin ? 'true' : 'false' %>; // 서버에서 전달된 isAdmin 변수
-
-            // 관리자만 수정/삭제 버튼 보이게 설정
-            if (isAdmin === 'true') {
-                adminButtons.style.display = 'flex';
-            } else {
-                adminButtons.style.display = 'none';
+            // 쿠키를 읽어오는 함수
+            function getCookie(name) {
+                let matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+                return matches ? decodeURIComponent(matches[1]) : undefined;
             }
+
+            // 로그인 상태 확인 (예: 'userid' 쿠키가 존재하면 로그인 상태)
+            const isLoggedIn = getCookie('userid') !== undefined;
+
+            // 적절한 네비게이션 바 파일 로드
+            const navbarFile = isLoggedIn ? 'user-navbar.html' : 'navbar.html';
+
+            fetch(navbarFile)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading navbar:', error);
+                });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const notice_no = urlParams.get('notice_no');
+            fetch(`api/get_notice_user.php?notice_no=${notice_no}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('noticeTitle').textContent = data.notice_title;
+                    document.getElementById('noticeAuthor').textContent = data.author;
+                    document.getElementById('noticeDate').textContent = data.notice_date;
+                    document.getElementById('noticeContent').textContent = data.notice_content;
+
+                    if (data.notice_file_path) {
+                        const fileLink = document.getElementById('fileLink');
+                        const fileType = data.notice_file_path.split('.').pop().toLowerCase();
+                        const imageTypes = ['jpg', 'jpeg', 'png', 'gif'];
+                        if (imageTypes.includes(fileType)) {
+                            fileLink.innerHTML = `<img src="${data.notice_file_path}" alt="첨부 이미지">`;
+                        } else {
+                            fileLink.innerHTML = `<a href="${data.notice_file_path}" download>${data.notice_file_path.split('/').pop()}</a>`;
+                        }
+                    } else {
+                        document.getElementById('fileRow').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notice:', error);
+                });
         });
     </script>
 </body>

@@ -170,6 +170,7 @@
             background-color: #f0f0f0;
         }
         .register-button {
+            display: none; /* 기본적으로 숨김 */
             position: absolute;
             right: 0;
             bottom: 0;
@@ -187,36 +188,10 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a>
-        </div>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <div class="dropdown">
-                <a href="#course">과정안내</a>
-                <div class="dropdown-content">
-                    <a href="#intro">소개</a>
-                    <a href="#job-track">직무트랙</a>
-                    <a href="#company-track">기업트랙</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#community">커뮤니티</a>
-                <div class="dropdown-content">
-                    <a href="notice_list.html">공지사항</a>
-                    <a href="qna_list.html">QNA</a>
-                </div>
-            </div>
-        </div>
-        <div class="auth">
-            <a href="login.html">로그인</a>
-            <a href="register.html">회원가입</a>
-        </div>
-    </div>
+    <div id="navbar" class="navbar"></div>
 
     <div class="container">
-        <div class="title">QNA</div>
+        <div class="title">Q&A</div>
         <div class="search-container">
             <input type="text" placeholder="검색">
             <button>검색</button>
@@ -227,46 +202,9 @@
             <div>작성일</div>
         </div>
         <ul class="qna-list" id="qna-list">
-            <!-- QNA 항목들 -->
-            <li>
-                <a href="qna_detail.html">질문 1</a>
-                <span class="author">user1</span>
-                <span class="date">2024-05-14</span>
-            </li>
-            <li>
-                <a href="qna_detail.html">질문 2</a>
-                <span class="author">user2</span>
-                <span class="date">2024-05-02</span>
-            </li>
-            <li>
-                <a href="qna_detail.html">질문 3</a>
-                <span class="author">user3</span>
-                <span class="date">2024-05-02</span>
-            </li>
-            <li>
-                <a href="qna_detail.html">질문 4</a>
-                <span class="author">user4</span>
-                <span class="date">2024-04-23</span>
-            </li>
-            <li>
-                <a href="qna_detail.html">질문 5</a>
-                <span class="author">user5</span>
-                <span class="date">2024-03-05</span>
-            </li>
-            <li>
-                <a href="qna_detail.html">질문 6</a>
-                <span class="author">user6</span>
-                <span class="date">2024-02-19</span>
-            </li>
-            <li>
-                <a href="qna_detail.html">질문 7</a>
-                <span class="author">user7</span>
-                <span class="date">2024-01-04</span>
-            </li>
+            <!-- Q&A 항목들 -->
         </ul>
-        <div class="pagination" id="pagination">
-            <a href="#">1</a>
-        </div>
+        <div class="pagination" id="pagination"></div>
         <a href="qna_write.html" class="register-button" id="register-button">질문 등록</a>
     </div>
 
@@ -275,31 +213,80 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const qnaList = document.getElementById('qna-list');
-            const pagination = document.getElementById('pagination');
-            const registerButton = document.getElementById('register-button');
-            const totalQnas = qnaList.children.length;
-            const qnasPerPage = 7;
-            const totalPages = Math.ceil(totalQnas / qnasPerPage);
-            // const isMember = <% isMember ? 'true' : 'false' %>; // 서버에서 전달된 isMember 변수
+        // 쿠키를 읽어오는 함수
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
 
-            if (totalPages <= 1) {
-                pagination.innerHTML = '<a href="#">1</a>';
-            } else {
-                pagination.innerHTML = '';
-                for (let i = 1; i <= totalPages && i <= 5; i++) {
-                    pagination.innerHTML += `<a href="#">${i}</a>`;
-                }
-                if (totalPages > 5) {
-                    pagination.innerHTML += `<a href="#">>></a>`;
-                }
-            }
+        function logout() {
+            // 로그아웃 처리 후 페이지 리디렉션
+            window.location.href = 'api/logout.php';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 로그인 상태 확인 (예: 'userid' 쿠키가 존재하면 로그인 상태)
+            const isLoggedIn = getCookie('userid') !== undefined;
+
+            // 적절한 네비게이션 바 파일 로드
+            const navbarFile = isLoggedIn ? 'user-navbar.html' : 'navbar.html';
+
+            fetch(navbarFile)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading navbar:', error);
+                });
+
+            // Fetch Q&A list
+            fetch('api/get_qnas.php')
+                .then(response => response.json())
+                .then(data => {
+                    const qnaList = document.getElementById('qna-list');
+                    qnaList.innerHTML = '';  // 기존 목록 초기화
+                    data.forEach(qna => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <a href="qna_detail.html?qna_no=${qna.qna_no}">${qna.qna_title}</a>
+                            <span class="author">${qna.author}</span>
+                            <span class="date">${qna.qna_date}</span>
+                        `;
+                        qnaList.appendChild(listItem);
+                    });
+
+                    // Pagination
+                    const totalQnas = qnaList.children.length;
+                    const qnasPerPage = 7;
+                    const totalPages = Math.ceil(totalQnas / qnasPerPage);
+                    const pagination = document.getElementById('pagination');
+
+                    if (totalPages <= 1) {
+                        pagination.innerHTML = '<a href="#">1</a>';
+                    } else {
+                        pagination.innerHTML = '';
+                        for (let i = 1; i <= totalPages && i <= 5; i++) {
+                            pagination.innerHTML += `<a href="#">${i}</a>`;
+                        }
+                        if (totalPages > 5) {
+                            pagination.innerHTML += `<a href="#">>></a>`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Q&A:', error);
+                });
 
             // 회원만 질문 등록 버튼 보이게 설정
-            // if (isMember === 'true') {
-            //     registerButton.style.display = 'inline-block';
-            // }
+            const registerButton = document.getElementById('register-button');
+            if (isLoggedIn) {
+                registerButton.style.display = 'inline-block';
+            } else {
+                registerButton.style.display = 'none';
+            }
         });
     </script>
 </body>

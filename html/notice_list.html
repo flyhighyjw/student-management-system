@@ -188,33 +188,7 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <a href="index.html"><img src="./img/logo.png" alt="Logo"></a> <!-- 로고 이미지 경로 -->
-        </div>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <div class="dropdown">
-                <a href="#course">과정안내</a>
-                <div class="dropdown-content">
-                    <a href="#intro">소개</a>
-                    <a href="#job-track">직무트랙</a>
-                    <a href="#company-track">기업트랙</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#community">커뮤니티</a>
-                <div class="dropdown-content">
-                    <a href="#notice">공지사항</a>
-                    <a href="qna_list.html">QNA</a>
-                </div>
-            </div>
-        </div>
-        <div class="auth">
-            <a href="login.html">로그인</a>
-            <a href="register.html">회원가입</a>
-        </div>
-    </div>
+    <div id="navbar"></div>
 
     <div class="container">
         <div class="title">공지사항</div>
@@ -228,78 +202,100 @@
             <div>작성일</div>
         </div>
         <ul class="notice-list" id="notice-list">
-            <!-- 공지사항 항목들 -->
-            <li>
-                <a href="notice_detail.html">공지 1</a>
-                <span class="author">admin</span>
-                <span class="date">2024-05-14</span>
-            </li>
-            <li>
-                <a href="#">공지 2</a>
-                <span class="author">admin</span>
-                <span class="date">2024-05-02</span>
-            </li>
-            <li>
-                <a href="#">공지 3</a>
-                <span class="author">admin</span>
-                <span class="date">2024-05-02</span>
-            </li>
-            <li>
-                <a href="#">공지 4</a>
-                <span class="author">admin</span>
-                <span class="date">2024-04-23</span>
-            </li>
-            <li>
-                <a href="#">공지 5</a>
-                <span class="author">admin</span>
-                <span class="date">2024-03-05</span>
-            </li>
-            <li>
-                <a href="#">공지 6</a>
-                <span class="author">admin</span>
-                <span class="date">2024-02-19</span>
-            </li>
-            <li>
-                <a href="#">공지 7</a>
-                <span class="author">admin</span>
-                <span class="date">2024-01-04</span>
-            </li>
-            <!-- 더 많은 공지사항 항목 추가 가능 -->
+            <!-- 공지사항 항목들 동적 추가 -->
         </ul>
         <div class="pagination" id="pagination">
-            <a href="#">1</a>
+            <a href="#" class="page-link">1</a>
         </div>
         <!--<button class="register-button" id="register-button">공지 등록</button>-->
     </div>
 
     <script>
+        // 쿠키를 읽어오는 함수
+        // 쿠키를 읽어오는 함수
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        function logout() {
+            // 로그아웃 처리 후 페이지 리디렉션
+            window.location.href = 'api/logout.php';
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const noticeList = document.getElementById('notice-list');
-            const pagination = document.getElementById('pagination');
-            const registerButton = document.getElementById('register-button');
-            // const isAdmin = <% isAdmin ? 'true' : 'false' %>; // 서버에서 전달된 isAdmin 변수
+            const noticesPerPage = 5; // 페이지당 표시할 공지사항 수
+            let currentPage = 1; // 현재 페이지
 
-            // 공지사항이 7개 이하일 경우 페이지네이션 설정
-            const totalNotices = noticeList.children.length;
-            const noticesPerPage = 7;
-            const totalPages = Math.ceil(totalNotices / noticesPerPage);
+            // 로그인 상태 확인 (예: 'userid' 쿠키가 존재하면 로그인 상태)
+            const isLoggedIn = getCookie('userid') !== undefined;
 
-            if (totalPages <= 1) {
-                pagination.innerHTML = '<a href="#">1</a>';
-            } else {
-                pagination.innerHTML = '';
-                for (let i = 1; i <= totalPages && i <= 5; i++) {
-                    pagination.innerHTML += `<a href="#">${i}</a>`;
-                }
-                if (totalPages > 5) {
-                    pagination.innerHTML += `<a href="#">>></a>`;
-                }
+            // 적절한 네비게이션 바 파일 로드
+            const navbarFile = isLoggedIn ? 'user-navbar.html' : 'navbar.html';
+
+            fetch(navbarFile)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading navbar:', error);
+                });
+
+            function fetchNotices(page) {
+                fetch('api/get_notices.php')  // 서버에서 공지 리스트를 가져오는 API 엔드포인트
+                    .then(response => response.json())
+                    .then(data => {
+                        const noticeList = document.getElementById('notice-list');
+                        noticeList.innerHTML = '';  // 기존 목록 초기화
+                        
+                        const start = (page - 1) * noticesPerPage;
+                        const end = start + noticesPerPage;
+                        const paginatedData = data.slice(start, end);
+
+                        paginatedData.forEach(notice => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <a href="notice_detail.html?notice_no=${notice.notice_no}">${notice.notice_title}</a>
+                                <span class="author">${notice.author}</span>
+                                <span class="date">${notice.notice_date}</span>
+                            `;
+                            noticeList.appendChild(listItem);
+                        });
+
+                        setupPagination(data.length, page);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching notices:', error);
+                    });
             }
 
-            // 관리자만 공지사항 등록 버튼 보이게 설정
-            // if (isAdmin === 'true') {
-            //     registerButton.style.display = 'inline-block';
-            // }
+            function setupPagination(totalNotices, currentPage) {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                const totalPages = Math.ceil(totalNotices / noticesPerPage);
+
+                // 1페이지는 항상 표시
+                pagination.innerHTML += `<a href="#" class="page-link" data-page="1">1</a>`;
+
+                for (let i = 2; i <= totalPages; i++) {
+                    pagination.innerHTML += `<a href="#" class="page-link" data-page="${i}">${i}</a>`;
+                }
+
+                // 페이지 링크에 이벤트 리스너 추가
+                document.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const page = parseInt(event.target.getAttribute('data-page'));
+                        currentPage = page;
+                        fetchNotices(page);
+                    });
+                });
+            }
+
+            fetchNotices(currentPage);
         });
     </script>
 </body>

@@ -5,7 +5,7 @@ include '../dbconn.php';
 $qna_no = intval($_GET['qna_no']);
 
 // QNA 세부 정보를 가져오는 쿼리
-$qna_sql = "SELECT Q.qna_no, Q.qna_title, Q.qna_content, Q.qna_date, U.user_name, (U.user_no = Q.user_no) AS is_user_author
+$qna_sql = "SELECT Q.qna_no, Q.qna_title, Q.qna_content, Q.qna_date, U.user_name, U.user_id
             FROM QNA Q
             JOIN USER U ON Q.user_no = U.user_no
             WHERE Q.qna_no = $qna_no";

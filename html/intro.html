@@ -123,8 +123,22 @@
     </div>
 
     <script>
+        // 쿠키를 읽어오는 함수
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('navbar.html')
+            // 로그인 상태 확인 (예: 'userid' 쿠키가 존재하면 로그인 상태)
+            const isLoggedIn = getCookie('userid') !== undefined;
+
+            // 적절한 네비게이션 바 파일 로드
+            const navbarFile = isLoggedIn ? 'user-navbar.html' : 'navbar.html';
+
+            fetch(navbarFile)
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('navbar').innerHTML = data;

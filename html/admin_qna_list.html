@@ -105,6 +105,22 @@
             justify-content: space-between;
             align-items: center;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            padding: 10px 15px;
+            margin: 0 5px;
+            border: 1px solid #ddd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .pagination a:hover {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -146,30 +162,70 @@
                         <button type="button" class="button button-danger" onclick="deleteQnas()">삭제</button>
                     </div>
                 </form>
+                <div class="pagination" id="pagination">
+                    <a href="#" class="page-link">1</a>
+                </div>
             </div>
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('api/get_qnas.php')  // 서버에서 QNA 리스트를 가져오는 API 엔드포인트
-                .then(response => response.json())
-                .then(data => {
-                    const qnaList = document.getElementById('qnaList');
-                    qnaList.innerHTML = '';  // 기존 목록 초기화
-                    data.forEach(qna => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><input type="checkbox" name="qna" value="${qna.qna_no}"></td>
-                            <td><a href="view_qna.html?qna_no=${qna.qna_no}">${qna.qna_title}</a></td>
-                            <td>${qna.author}</td>
-                            <td>${qna.qna_date}</td>
-                        `;
-                        qnaList.appendChild(row);
+            const qnasPerPage = 5; // 페이지당 표시할 QNA 수
+            let currentPage = 1; // 현재 페이지
+
+            function fetchQnas(page) {
+                fetch('api/get_qnas.php')  // 서버에서 QNA 리스트를 가져오는 API 엔드포인트
+                    .then(response => response.json())
+                    .then(data => {
+                        const qnaList = document.getElementById('qnaList');
+                        qnaList.innerHTML = '';  // 기존 목록 초기화
+                        
+                        const start = (page - 1) * qnasPerPage;
+                        const end = start + qnasPerPage;
+                        const paginatedData = data.slice(start, end);
+
+                        paginatedData.forEach(qna => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><input type="checkbox" name="qna" value="${qna.qna_no}"></td>
+                                <td><a href="view_qna.html?qna_no=${qna.qna_no}">${qna.qna_title}</a></td>
+                                <td>${qna.author}</td>
+                                <td>${qna.qna_date}</td>
+                            `;
+                            qnaList.appendChild(row);
+                        });
+
+                        setupPagination(data.length, page);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching qnas:', error);
                     });
-                })
-                .catch(error => {
-                    console.error('Error fetching qnas:', error);
+            }
+
+            function setupPagination(totalQnas, currentPage) {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                const totalPages = Math.ceil(totalQnas / qnasPerPage);
+
+                // 1페이지는 항상 표시
+                pagination.innerHTML += `<a href="#" class="page-link" data-page="1">1</a>`;
+
+                for (let i = 2; i <= totalPages; i++) {
+                    pagination.innerHTML += `<a href="#" class="page-link" data-page="${i}">${i}</a>`;
+                }
+
+                // 페이지 링크에 이벤트 리스너 추가
+                document.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const page = parseInt(event.target.getAttribute('data-page'));
+                        currentPage = page;
+                        fetchQnas(page);
+                    });
                 });
+            }
+
+            fetchQnas(currentPage);
         });
 
         function toggleAll(source) {

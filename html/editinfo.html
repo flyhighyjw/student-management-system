@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>마이페이지</title>
+    <title>회원정보 수정</title>
     <style>
         body, html {
             width: 100%;
@@ -111,13 +111,30 @@
             position: relative;
             bottom: 0;
         }
-        .content-section {
-            margin-bottom: 20px;
+        .form-container {
+            max-width: 600px;
+            margin: auto;
         }
-        .content-section h2 {
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        .form-container label {
+            display: block;
+            margin-top: 10px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        .form-container button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
         }
     </style>
     <script>
@@ -146,15 +163,40 @@
                     console.error('Error loading navbar:', error);
                 });
 
-            // myclassroom.html 파일을 메인 콘텐츠에 로드
-            fetch('myclassroom.html')
-                .then(response => response.text())
+            // 기존 사용자 정보 로드 (예시)
+            const userId = getCookie('userid');
+            if (userId) {
+                fetch(`/your_project_path/api/getUserInfo.php?userid=${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('username').value = data.username;
+                        document.getElementById('email').value = data.email;
+                        // 비밀번호는 보안상 제공하지 않음
+                    })
+                    .catch(error => {
+                        console.error('Error loading user info:', error);
+                    });
+            }
+
+            document.getElementById('editForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                fetch('/your_project_path/api/updateUser.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
                 .then(data => {
-                    document.querySelector('.main-content').innerHTML = data;
+                    if (data.success) {
+                        alert('회원정보가 수정되었습니다.');
+                    } else {
+                        alert('회원정보 수정에 실패하였습니다.');
+                    }
                 })
                 .catch(error => {
-                    console.error('Error loading main content:', error);
+                    console.error('Error updating user info:', error);
                 });
+            });
         });
     </script>
 </head>
@@ -162,13 +204,27 @@
     <div id="navbar"></div>
     
     <div class="sidebar">
-        <a href="#mycourses">나의 강의실</a>
-        <a href="editinfo.html">회원정보 수정</a>
-        <a href="#deleteaccount">회원탈퇴</a>
+        <a href="mypage.html#mycourses">나의 강의실</a>
+        <a href="mypage.html#editinfo">비밀번호 변경</a>
+        <a href="mypage.html#deleteaccount">회원탈퇴</a>
     </div>
 
     <div class="main-content">
-        <!-- myclassroom.html 파일 내용이 여기에 로드됩니다 -->
+        <div class="form-container">
+            <h2>회원정보 수정</h2>
+            <form id="editForm">
+                <label for="username">사용자 이름</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">새 비밀번호</label>
+                <input type="password" id="password" name="password">
+
+                <button type="submit">수정완료</button>
+            </form>
+        </div>
     </div>
 
     <div class="footer">
