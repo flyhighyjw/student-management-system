@@ -140,13 +140,13 @@
                 });
 
             // 공지사항과 QNA 데이터 로드
-            fetch('/your_project_path/api/notices')
+            fetch('/api/get_notices.php')
                 .then(response => response.json())
                 .then(data => {
                     const noticeList = document.getElementById('noticeList');
                     data.forEach(notice => {
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<a href="/your_project_path/notice/${notice.id}">${notice.title}</a>`;
+                        listItem.innerHTML = `<a href="/notice_list.html?notice_no=${notice.notice_no}">${notice.notice_title}</a>`;
                         noticeList.appendChild(listItem);
                     });
                 })
@@ -154,13 +154,13 @@
                     console.error('Error:', error);
                 });
 
-            fetch('/your_project_path/api/qna')
+            fetch('/api/get_qnas.php')
                 .then(response => response.json())
                 .then(data => {
                     const qnaList = document.getElementById('qnaList');
                     data.forEach(qna => {
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<a href="/your_project_path/qna/${qna.id}">${qna.title}</a>`;
+                        listItem.innerHTML = `<a href="/qna_list.html?qna_no=${qna.qna_no}">${qna.qna_title}</a>`;
                         qnaList.appendChild(listItem);
                     });
                 })
