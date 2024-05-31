@@ -172,7 +172,7 @@
     </div>
 
     <div class="footer">
-        © 2024 Your Company Name. All rights reserved.
+        © 2024 5T4R Project. All rights reserved.
     </div>
 
     <script>
@@ -234,10 +234,9 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.message === "회원가입이 완료되었습니다.") {
-                        alert(data.message);
-                    } else {
-                        alert("오류가 발생했습니다: " + data.error);
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.href = '../index.html';
                     }
                 })
                 .catch(error => {

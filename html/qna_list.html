@@ -170,7 +170,6 @@
             background-color: #f0f0f0;
         }
         .register-button {
-            display: none; /* 기본적으로 숨김 */
             position: absolute;
             right: 0;
             bottom: 0;
@@ -193,8 +192,8 @@
     <div class="container">
         <div class="title">Q&A</div>
         <div class="search-container">
-            <input type="text" placeholder="검색">
-            <button>검색</button>
+            <input type="text" id="searchInput" placeholder="검색">
+            <button id="searchButton">검색</button>
         </div>
         <div class="qna-header">
             <div>제목</div>
@@ -209,7 +208,7 @@
     </div>
 
     <div class="footer">
-        © 2024 Your Company Name. All rights reserved.
+        © 2024 5T4R Project. All rights reserved.
     </div>
 
     <script>
@@ -227,6 +226,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            const qnasPerPage = 7; // 페이지당 표시할 Q&A 수
+            let currentPage = 1; // 현재 페이지
+
             // 로그인 상태 확인 (예: 'userid' 쿠키가 존재하면 로그인 상태)
             const isLoggedIn = getCookie('userid') !== undefined;
 
@@ -242,51 +244,73 @@
                     console.error('Error loading navbar:', error);
                 });
 
-            // Fetch Q&A list
-            fetch('api/get_qnas.php')
-                .then(response => response.json())
-                .then(data => {
-                    const qnaList = document.getElementById('qna-list');
-                    qnaList.innerHTML = '';  // 기존 목록 초기화
-                    data.forEach(qna => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `
-                            <a href="qna_detail.html?qna_no=${qna.qna_no}">${qna.qna_title}</a>
-                            <span class="author">${qna.author}</span>
-                            <span class="date">${qna.qna_date}</span>
-                        `;
-                        qnaList.appendChild(listItem);
+            function fetchQnas(page, searchTerm = '') {
+                let apiUrl = `api/get_qnas.php?page=${page}`;
+                if (searchTerm) {
+                    apiUrl += `&search=${encodeURIComponent(searchTerm)}`;
+                }
+
+                fetch(apiUrl)  // 서버에서 Q&A 리스트를 가져오는 API 엔드포인트
+                    .then(response => response.json())
+                    .then(data => {
+                        const qnaList = document.getElementById('qna-list');
+                        qnaList.innerHTML = '';  // 기존 목록 초기화
+                        
+                        const start = (page - 1) * qnasPerPage;
+                        const end = start + qnasPerPage;
+                        const paginatedData = data.slice(start, end);
+
+                        paginatedData.forEach(qna => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <a href="qna_detail.html?qna_no=${qna.qna_no}">${qna.qna_title}</a>
+                                <span class="author">${qna.author}</span>
+                                <span class="date">${qna.qna_date}</span>
+                            `;
+                            qnaList.appendChild(listItem);
+                        });
+
+                        setupPagination(data.length, page, searchTerm);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Q&A:', error);
                     });
-
-                    // Pagination
-                    const totalQnas = qnaList.children.length;
-                    const qnasPerPage = 7;
-                    const totalPages = Math.ceil(totalQnas / qnasPerPage);
-                    const pagination = document.getElementById('pagination');
-
-                    if (totalPages <= 1) {
-                        pagination.innerHTML = '<a href="#">1</a>';
-                    } else {
-                        pagination.innerHTML = '';
-                        for (let i = 1; i <= totalPages && i <= 5; i++) {
-                            pagination.innerHTML += `<a href="#">${i}</a>`;
-                        }
-                        if (totalPages > 5) {
-                            pagination.innerHTML += `<a href="#">>></a>`;
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching Q&A:', error);
-                });
-
-            // 회원만 질문 등록 버튼 보이게 설정
-            const registerButton = document.getElementById('register-button');
-            if (isLoggedIn) {
-                registerButton.style.display = 'inline-block';
-            } else {
-                registerButton.style.display = 'none';
             }
+
+            function setupPagination(totalQnas, currentPage, searchTerm = '') {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                const totalPages = Math.ceil(totalQnas / qnasPerPage);
+
+                // 1페이지는 항상 표시
+                pagination.innerHTML += `<a href="#" class="page-link" data-page="1">1</a>`;
+
+                for (let i = 2; i <= totalPages; i++) {
+                    pagination.innerHTML += `<a href="#" class="page-link" data-page="${i}">${i}</a>`;
+                }
+
+                // 페이지 링크에 이벤트 리스너 추가
+                document.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const page = parseInt(event.target.getAttribute('data-page'));
+                        currentPage = page;
+                        fetchQnas(page, searchTerm);
+                    });
+                });
+            }
+
+            document.getElementById('searchButton').addEventListener('click', function() {
+                const searchTerm = document.getElementById('searchInput').value;
+                fetchQnas(1, searchTerm); // 검색 시 1페이지부터 다시 시작
+            });
+
+            // 쿠키가 없으면 '질문 등록' 버튼 숨기기
+            if (!getCookie('userid')) {
+                document.getElementById('register-button').style.display = 'none';
+            }
+
+            fetchQnas(currentPage);
         });
     </script>
 </body>

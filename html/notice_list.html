@@ -193,8 +193,8 @@
     <div class="container">
         <div class="title">공지사항</div>
         <div class="search-container">
-            <input type="text" placeholder="검색">
-            <button>검색</button>
+            <input type="text" id="searchInput" placeholder="검색">
+            <button id="searchButton">검색</button>
         </div>
         <div class="notice-header">
             <div>제목</div>
@@ -243,8 +243,13 @@
                     console.error('Error loading navbar:', error);
                 });
 
-            function fetchNotices(page) {
-                fetch('api/get_notices.php')  // 서버에서 공지 리스트를 가져오는 API 엔드포인트
+            function fetchNotices(page, searchTerm = '') {
+                let apiUrl = `api/get_notices.php?page=${page}`;
+                if (searchTerm) {
+                    apiUrl += `&search=${encodeURIComponent(searchTerm)}`;
+                }
+
+                fetch(apiUrl)  // 서버에서 공지 리스트를 가져오는 API 엔드포인트
                     .then(response => response.json())
                     .then(data => {
                         const noticeList = document.getElementById('notice-list');
@@ -264,14 +269,14 @@
                             noticeList.appendChild(listItem);
                         });
 
-                        setupPagination(data.length, page);
+                        setupPagination(data.length, page, searchTerm);
                     })
                     .catch(error => {
                         console.error('Error fetching notices:', error);
                     });
             }
 
-            function setupPagination(totalNotices, currentPage) {
+            function setupPagination(totalNotices, currentPage, searchTerm = '') {
                 const pagination = document.getElementById('pagination');
                 pagination.innerHTML = '';
                 const totalPages = Math.ceil(totalNotices / noticesPerPage);
@@ -289,10 +294,15 @@
                         event.preventDefault();
                         const page = parseInt(event.target.getAttribute('data-page'));
                         currentPage = page;
-                        fetchNotices(page);
+                        fetchNotices(page, searchTerm);
                     });
                 });
             }
+
+            document.getElementById('searchButton').addEventListener('click', function() {
+                const searchTerm = document.getElementById('searchInput').value;
+                fetchNotices(1, searchTerm); // 검색 시 1페이지부터 다시 시작
+            });
 
             fetchNotices(currentPage);
         });

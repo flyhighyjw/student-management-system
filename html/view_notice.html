@@ -131,7 +131,6 @@
                 <p id="noticeContent">공지 내용</p>
                 <div class="file-preview" id="filePreview"></div>
                 <br>
-                <button class="button" onclick="editNotice()">수정</button>
                 <button class="button-danger" onclick="deleteNotice()">삭제</button>
             </div>
         </div>
@@ -144,7 +143,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.querySelector('#noticeCard h3').textContent = data.notice_title;
-                    document.getElementById('noticeContent').textContent = data.notice_content;
+                    document.getElementById('noticeContent').innerHTML = data.notice_content.replace(/\n/g, '<br>'); // 줄바꿈을 <br>로 변환
                     if (data.notice_file_path) {
                         const filePreview = document.getElementById('filePreview');
                         const fileType = data.notice_file_path.split('.').pop().toLowerCase();
@@ -162,12 +161,6 @@
                     console.error('Error fetching notice:', error);
                 });
         });
-
-        function editNotice() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const notice_no = urlParams.get('notice_no');
-            window.location.href = `edit_notice.html?notice_no=${notice_no}`;
-        }
 
         function deleteNotice() {
             const urlParams = new URLSearchParams(window.location.search);

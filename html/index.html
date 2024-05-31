@@ -106,7 +106,7 @@
     </div>
 
     <div class="footer">
-        © 2024 Your Company Name. All rights reserved.
+        © 2024 5T4R Project. All rights reserved.
     </div>
 
     <script>
@@ -144,7 +144,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const noticeList = document.getElementById('noticeList');
-                    data.forEach(notice => {
+                    data.slice(0, 3).forEach(notice => { // 최대 3개의 공지사항만 표시
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `<a href="/notice_list.html?notice_no=${notice.notice_no}">${notice.notice_title}</a>`;
                         noticeList.appendChild(listItem);
@@ -158,7 +158,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const qnaList = document.getElementById('qnaList');
-                    data.forEach(qna => {
+                    data.slice(0, 3).forEach(qna => { // 최대 3개의 QNA만 표시
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `<a href="/qna_list.html?qna_no=${qna.qna_no}">${qna.qna_title}</a>`;
                         qnaList.appendChild(listItem);

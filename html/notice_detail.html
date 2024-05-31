@@ -184,7 +184,7 @@
     </div>
 
     <div class="footer">
-        © 2024 Your Company Name. All rights reserved.
+        © 2024 5T4R Project. All rights reserved.
     </div>
 
     <script>
@@ -220,7 +220,7 @@
                     document.getElementById('noticeTitle').textContent = data.notice_title;
                     document.getElementById('noticeAuthor').textContent = data.author;
                     document.getElementById('noticeDate').textContent = data.notice_date;
-                    document.getElementById('noticeContent').textContent = data.notice_content;
+                    document.getElementById('noticeContent').innerHTML = data.notice_content; // 줄바꿈을 HTML로 변환하여 표시
 
                     if (data.notice_file_path) {
                         const fileLink = document.getElementById('fileLink');

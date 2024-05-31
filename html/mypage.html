@@ -7,7 +7,7 @@
     <style>
         body, html {
             width: 100%;
-            overflow-x: hidden; /* 가로 스크롤을 숨깁니다 */
+            overflow-x: hidden;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -80,11 +80,11 @@
         .sidebar {
             width: 200px;
             position: fixed;
-            top: 60px; /* 네비게이션 바와 겹치지 않도록 여백 추가 */
+            top: 60px;
             left: 0;
             background-color: #f4f4f4;
             padding: 10px;
-            height: calc(100% - 60px); /* 푸터를 침범하지 않도록 높이 설정 */
+            height: calc(100% - 60px);
             box-sizing: border-box;
         }
         .sidebar a {
@@ -97,8 +97,8 @@
             background-color: #ddd;
         }
         .main-content {
-            margin-left: 220px; /* 사이드바 너비 */
-            margin-top: 70px; /* 네비게이션 바 높이 */
+            margin-left: 220px;
+            margin-top: 70px;
             padding: 20px;
             flex: 1;
         }
@@ -122,8 +122,7 @@
     </style>
     <script>
         function logout() {
-            // 로그아웃 처리 후 페이지 리디렉션
-            window.location.href = 'logout.php';
+            window.location.href = 'api/logout.php';
         }
 
         function getCookie(name) {
@@ -131,6 +130,29 @@
                 "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
             ));
             return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        function deleteAccount() {
+            if (confirm("정말로 회원 탈퇴하시겠습니까?")) {
+                fetch('api/delete_account.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userid: getCookie('userid') })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        logout();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('오류가 발생했습니다. 다시 시도해주세요.');
+                });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -146,8 +168,7 @@
                     console.error('Error loading navbar:', error);
                 });
 
-            // myclassroom.html 파일을 메인 콘텐츠에 로드
-            fetch('myclassroom.html')
+            fetch('editinfo.html')
                 .then(response => response.text())
                 .then(data => {
                     document.querySelector('.main-content').innerHTML = data;
@@ -162,17 +183,16 @@
     <div id="navbar"></div>
     
     <div class="sidebar">
-        <a href="#mycourses">나의 강의실</a>
         <a href="editinfo.html">비밀번호 변경</a>
-        <a href="#deleteaccount">회원탈퇴</a>
+        <a href="javascript:void(0);" onclick="deleteAccount()">회원탈퇴</a>
     </div>
 
     <div class="main-content">
-        <!-- myclassroom.html 파일 내용이 여기에 로드됩니다 -->
+        <!-- editinfo.html 파일 내용이 여기에 로드됩니다 -->
     </div>
 
     <div class="footer">
-        © 2024 Your Company Name. All rights reserved.
+        © 2024 5T4R Project. All rights reserved.
     </div>
 </body>
 </html>

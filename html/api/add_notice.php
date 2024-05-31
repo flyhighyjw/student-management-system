@@ -17,6 +17,7 @@ if (!empty($_FILES["file"]["name"])) {
         $file_uploaded = true;
         $file_url = "uploads/" . basename($_FILES["file"]["name"]);  // 상대 경로
     } else {
+        error_log("File upload failed: " . $_FILES["file"]["error"]);
         echo json_encode(["success" => false, "error" => "File upload failed"]);
         exit;
     }

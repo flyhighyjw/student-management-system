@@ -154,5 +154,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // 쿠키를 읽어오는 함수
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 쿠키가 특정 값(4dmin)이 아니면 로그인 페이지로 리다이렉션
+            if (getCookie('userid') !== '4dmin') {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
 </body>
 </html>

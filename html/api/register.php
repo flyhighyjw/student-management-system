@@ -15,11 +15,12 @@ $track_no = $data['track']; // 트랙 번호를 직접 받음
 $query = "INSERT INTO USER (user_id, user_pw, user_name, user_phone, track_no) VALUES ('$userid', '$password', '$username', '$phone', $track_no)";
 if ($conn->query($query) === TRUE) {
     $response = [
+        "success" => true,
         "message" => "회원가입이 완료되었습니다.",
     ];
     echo json_encode($response);
 } else {
-    echo json_encode(["message" => "Database Error", "error" => $conn->error]);
+    echo json_encode(["success" => false, "message" => "Database Error", "error" => $conn->error]);
 }
 
 $conn->close();

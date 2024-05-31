@@ -264,7 +264,7 @@
     </div>
 
     <div class="footer">
-        © 2024 Your Company Name. All rights reserved.
+        © 2024 5T4R Project. All rights reserved.
     </div>
 
     <script>
@@ -301,10 +301,10 @@
             fetch(`api/get_qna.php?qna_no=${qnaNo}`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('qna-title').textContent = data.qna_title;
+                    document.getElementById('qna-title').innerHTML = data.qna_title;
                     document.getElementById('qna-author').textContent = data.user_name;
                     document.getElementById('qna-date').textContent = data.qna_date;
-                    document.getElementById('qna-content').textContent = data.qna_content;
+                    document.getElementById('qna-content').innerHTML = data.qna_content;
 
                     const userButtons = document.getElementById('user-buttons');
                     
@@ -390,13 +390,14 @@
             }
 
             const qnaNo = new URLSearchParams(window.location.search).get('qna_no');
+            const userId = getCookie('userid');
             const commentContent = document.getElementById('new-comment').value;
             fetch(`api/add_comment.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ qna_no: qnaNo, comment_content: commentContent })
+                body: JSON.stringify({ qna_no: qnaNo, comment_content: commentContent, user_id: userId })
             })
             .then(response => response.json())
             .then(data => {
